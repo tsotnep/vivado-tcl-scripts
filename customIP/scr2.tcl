@@ -1,7 +1,7 @@
 #vivado version: 2015.1
-#this script: 
-	#in the script directory, creates new project with name : new_project_1
-	#creates block design and adds : 
+#this script:
+	#in the script directory, creates new project with name : $PROJECTNAME
+	#creates block design and adds :
 		#ZynqProcessingSystem
 		#custom IP, located in the script directory
 		#connects interrupt of custom IP to PS(fabric IRQ_F2P)
@@ -11,8 +11,9 @@
 	#launchs sdk
 
 #basic variables
-set PROJECTNAME new_project_1
-	
+set PROJECTNAME lab3
+set BD BlockDesign
+
 #set the origin directory, to the location of the script
 set origin_dir [file dirname [info script]]
 
@@ -20,7 +21,7 @@ set origin_dir [file dirname [info script]]
 set orig_proj_dir "[file normalize "$origin_dir/$PROJECTNAME"]"
 
 #create project
-create_project project_1 $orig_proj_dir -part xc7z020clg484-1 -f
+create_project $PROJECTNAME $orig_proj_dir -part xc7z020clg484-1 -f
 set_property board_part em.avnet.com:zed:part0:1.3 [current_project]
 set_property ip_repo_paths  $origin_dir/ip_repo/MYMULTIPLIER_1.0 [current_project]
 set_property target_language VHDL [current_project]
@@ -31,7 +32,7 @@ set proj_dir [get_property directory [current_project]]
 
 #add IPs, processing system, multiplier
 update_ip_catalog
-create_bd_design "design_1"
+create_bd_design "$BD"
 startgroup
 create_bd_cell -type ip -vlnv xilinx.com:ip:processing_system7:5.5 processing_system7_0
 endgroup
@@ -57,8 +58,8 @@ validate_bd_design
 save_bd_design
 
 #create hdl wrapper
-make_wrapper -files [get_files $orig_proj_dir/project_1.srcs/sources_1/bd/design_1/design_1.bd] -top
-add_files -norecurse $orig_proj_dir/project_1.srcs/sources_1/bd/design_1/hdl/design_1_wrapper.vhd
+make_wrapper -files [get_files $orig_proj_dir/$PROJECTNAME.srcs/sources_1/bd/$BD/$BD.bd] -top
+add_files -norecurse $orig_proj_dir/$PROJECTNAME.srcs/sources_1/bd/$BD/hdl/${BD}_wrapper.vhd
 update_compile_order -fileset sources_1
 update_compile_order -fileset sim_1
 
@@ -67,8 +68,8 @@ launch_runs impl_1 -to_step write_bitstream
 wait_on_run impl_1
 
 #export design to sdk, with bitstream
-file mkdir $orig_proj_dir/project_1.sdk
-file copy -force $orig_proj_dir/project_1.runs/impl_1/design_1_wrapper.sysdef $orig_proj_dir/project_1.sdk/design_1_wrapper.hdf
+file mkdir $orig_proj_dir/$PROJECTNAME.sdk
+file copy -force $orig_proj_dir/$PROJECTNAME.runs/impl_1/${BD}_wrapper.sysdef $orig_proj_dir/$PROJECTNAME.sdk/${BD}_wrapper.hdf
 
 #launch sdk
-launch_sdk -workspace $orig_proj_dir/project_1.sdk -hwspec $orig_proj_dir/project_1.sdk/design_1_wrapper.hdf
+launch_sdk -workspace $orig_proj_dir/$PROJECTNAME.sdk -hwspec $orig_proj_dir/$PROJECTNAME.sdk/${BD}_wrapper.hdf
