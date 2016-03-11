@@ -89,3 +89,6 @@ source scr2.tcl
 open_hw_design $orig_proj_dir/$PROJECTNAME.sdk/${BD}_wrapper.hdf
 generate_app -os standalone -proc ps7_cortexa9_0 -app zynq_fsbl -compile -sw fsbl -dir $orig_proj_dir/$PROJECTNAME.sdk/FSBL
 file copy -force $orig_proj_dir/$PROJECTNAME.sdk/FSBL/executable.elf $sdtemp/FSBL.elf
+
+#generate BOOT.bin
+bootgen -image output.bif -o i BOOT.bin
