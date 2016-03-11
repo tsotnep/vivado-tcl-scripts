@@ -1,3 +1,14 @@
+RUN tcl script from this directory
+in this directory open:
+  vivado -mode tcl
+  source /scripts/bitstream.tcl
+  hsi
+  source /scripts/fsbl.tcl
+
+
+
+
+
 1. devicetree.dtb : TODO
 
 2. u-boot.elf : TODO

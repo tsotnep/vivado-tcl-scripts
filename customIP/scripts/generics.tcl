@@ -18,7 +18,8 @@ set sd_image sd-image
 
 
 #set the origin directory, to the location of the script
-set origin_dir [file dirname [info script]]
+#set origin_dir [file dirname [info script]]
+set origin_dir .
 
 # normalize, repalces "~/" with "/home/username", calculates "../"  and etc. and set root directory
 set orig_vivado "[file normalize "$origin_dir/$vivado"]"
