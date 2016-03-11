@@ -8,7 +8,7 @@
 		#regenerates layout & validates design
 	#generates bitstream
 	#exports hardware to sdk
-	#launchs sdk
+	#generates FSBL.elf in SDK
 
 #basic variables
 set PROJECTNAME lab3
@@ -16,9 +16,14 @@ set BD BlockDesign
 
 #set the origin directory, to the location of the script
 set origin_dir [file dirname [info script]]
-
 # normalize, repalces "~/" with "/home/username", calculates "../"  and etc.
 set orig_proj_dir "[file normalize "$origin_dir/$PROJECTNAME"]"
+
+#setup directories
+file mkdir ../sd-temp ../sd-image ../temp
+set sdtemp ../sd-temp
+set sdimage ../sd-image
+set temp ../temp
 
 #create project
 create_project $PROJECTNAME $orig_proj_dir -part xc7z020clg484-1 -f
@@ -66,10 +71,21 @@ update_compile_order -fileset sim_1
 #generate bitstream
 launch_runs impl_1 -to_step write_bitstream
 wait_on_run impl_1
+file copy -force $orig_proj_dir/$PROJECTNAME.runs/impl_1/${BD}_wrapper.bit $sdtemp
 
 #export design to sdk, with bitstream
 file mkdir $orig_proj_dir/$PROJECTNAME.sdk
 file copy -force $orig_proj_dir/$PROJECTNAME.runs/impl_1/${BD}_wrapper.sysdef $orig_proj_dir/$PROJECTNAME.sdk/${BD}_wrapper.hdf
 
 #launch sdk
-launch_sdk -workspace $orig_proj_dir/$PROJECTNAME.sdk -hwspec $orig_proj_dir/$PROJECTNAME.sdk/${BD}_wrapper.hdf
+#launch_sdk -workspace $orig_proj_dir/$PROJECTNAME.sdk -hwspec $orig_proj_dir/$PROJECTNAME.sdk/${BD}_wrapper.hdf
+
+set [info script]
+
+#generate FSBL
+hsi
+#TODO:i need to fix next line
+source scr2.tcl
+open_hw_design $orig_proj_dir/$PROJECTNAME.sdk/${BD}_wrapper.hdf
+generate_app -os standalone -proc ps7_cortexa9_0 -app zynq_fsbl -compile -sw fsbl -dir $orig_proj_dir/$PROJECTNAME.sdk/FSBL
+file copy -force $orig_proj_dir/$PROJECTNAME.sdk/FSBL/executable.elf $sdtemp/FSBL.elf
